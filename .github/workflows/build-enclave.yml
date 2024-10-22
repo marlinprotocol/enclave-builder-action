@@ -1,0 +1,49 @@
+name: Build Enclave
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build-enclave:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Verify required files are present
+        run: |
+          if [[ ! -f Dockerfile || ! -f setup.sh || ! -f supervisord.conf ]]; then
+            echo "Required files (Dockerfile, setup.sh, supervisord.conf) are missing!"
+            exit 1
+          fi
+
+      - name: Move files to folder structure
+        run: |
+          mkdir -p setup
+          mv Dockerfile setup/ || echo "Dockerfile already in setup/"
+          mv setup.sh setup/ || echo "setup.sh already in setup/"
+          mv supervisord.conf setup/ || echo "supervisord.conf already in setup/"
+
+          # Check and add outer Dockerfile and entrypoint.sh if not present
+          if [ ! -f Dockerfile ]; then
+            echo "Creating outer Dockerfile"
+            echo "# base image\nFROM marlinorg/nitro-cli\nWORKDIR /app/setup\nCOPY entrypoint.sh ./\nRUN chmod +x entrypoint.sh\nENTRYPOINT [ \"/app/setup/entrypoint.sh\" ]" > Dockerfile
+          fi
+
+          if [ ! -f entrypoint.sh ]; then
+            echo "Creating entrypoint.sh"
+            echo "#!/bin/sh\n\n" > entrypoint.sh
+            echo "dockerd &\nsleep 10\n\n# Determine architecture\nARCH=\$(uname -m)\nif [ \"\$ARCH\" = \"aarch64\" ]; then\n  PLATFORM=linux/arm64\nelse\n  PLATFORM=linux/amd64\nfi\n\n" >> entrypoint.sh
+            echo "docker buildx create --name multiplatformEnclave --driver docker-container --bootstrap\ndocker buildx use multiplatformEnclave\n\ncd /app/mount/setup\ndocker buildx build --platform \$PLATFORM -t enclave:latest --load .\n\nmkdir -p /app/mount/enclave\nmkdir -p /var/log/nitro_enclaves\ntouch /var/log/nitro_enclaves/nitro_enclaves.log\n\nnitro-cli build-enclave --docker-uri enclave:latest --output-file /app/mount/enclave/enclave.eif" >> entrypoint.sh
+          fi
+
+      - name: Build and Run Enclave
+        run: |
+          docker build -t enclave .
+          docker run -it --privileged -v `pwd`:/app/mount enclave
