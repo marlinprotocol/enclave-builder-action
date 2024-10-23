@@ -33,15 +33,51 @@ jobs:
           # Check and add outer Dockerfile and entrypoint.sh if not present
           if [ ! -f Dockerfile ]; then
             echo "Creating outer Dockerfile"
-            echo "# base image\nFROM marlinorg/nitro-cli\nWORKDIR /app/setup\nCOPY entrypoint.sh ./\nRUN chmod +x entrypoint.sh\nENTRYPOINT [ \"/app/setup/entrypoint.sh\" ]" > Dockerfile
+            cat <<EOF > Dockerfile
+          # base image
+          FROM marlinorg/nitro-cli
+
+          # working directory
+          WORKDIR /app/setup
+
+          # add files
+          COPY entrypoint.sh ./
+          RUN chmod +x entrypoint.sh
+
+          # entry point
+          ENTRYPOINT [ "/app/setup/entrypoint.sh" ]
+          EOF
+                  fi
+
+                  if [ ! -f entrypoint.sh ]; then
+                  echo "Creating entrypoint.sh"
+                  cat <<EOF > entrypoint.sh
+          #!/bin/sh
+
+          dockerd &
+          sleep 10
+
+          # Determine architecture
+          ARCH=\$(uname -m)
+          if [ "\$ARCH" = "aarch64" ]; then
+          PLATFORM=linux/arm64
+          else
+          PLATFORM=linux/amd64
           fi
 
-          if [ ! -f entrypoint.sh ]; then
-            echo "Creating entrypoint.sh"
-            echo "#!/bin/sh\n\n" > entrypoint.sh
-            echo "dockerd &\nsleep 10\n\n# Determine architecture\nARCH=\$(uname -m)\nif [ \"\$ARCH\" = \"aarch64\" ]; then\n  PLATFORM=linux/arm64\nelse\n  PLATFORM=linux/amd64\nfi\n\n" >> entrypoint.sh
-            echo "docker buildx create --name multiplatformEnclave --driver docker-container --bootstrap\ndocker buildx use multiplatformEnclave\n\ncd /app/mount/setup\ndocker buildx build --platform \$PLATFORM -t enclave:latest --load .\n\nmkdir -p /app/mount/enclave\nmkdir -p /var/log/nitro_enclaves\ntouch /var/log/nitro_enclaves/nitro_enclaves.log\n\nnitro-cli build-enclave --docker-uri enclave:latest --output-file /app/mount/enclave/enclave.eif" >> entrypoint.sh
-          fi
+          docker buildx create --name multiplatformEnclave --driver docker-container --bootstrap
+          docker buildx use multiplatformEnclave
+
+          cd /app/mount/setup
+          docker buildx build --platform \$PLATFORM -t enclave:latest --load .
+
+          mkdir -p /app/mount/enclave
+          mkdir -p /var/log/nitro_enclaves
+          touch /var/log/nitro_enclaves/nitro_enclaves.log
+
+          nitro-cli build-enclave --docker-uri enclave:latest --output-file /app/mount/enclave/enclave.eif
+          EOF
+                  fi
 
       - name: Build and Run Enclave
         run: |
