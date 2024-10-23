@@ -82,4 +82,4 @@ jobs:
       - name: Build and Run Enclave
         run: |
           docker build -t enclave .
-          docker run -it --privileged -v `pwd`:/app/mount enclave
+          docker run --privileged -v `pwd`:/app/mount enclave
