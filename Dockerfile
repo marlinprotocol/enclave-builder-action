@@ -42,7 +42,7 @@ COPY setup.sh ./
 RUN chmod +x setup.sh
 
 # your custom setup goes here
-# COPY server/ /app/server/
+COPY server/ /app/server/
 RUN apk add chromium git nodejs npm yarn
 
 # entry point
