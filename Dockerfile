@@ -38,11 +38,20 @@ RUN chmod +x oyster-keygen
 COPY supervisord.conf /etc/supervisord.conf
 
 # setup.sh script that will act as entrypoint
-COPY setup.sh ./
+COPY setup.sh ./setup.sh
 RUN chmod +x setup.sh
 
-# your custom setup goes here
-COPY server/ /app/server/
+# Ensure the setup directory exists
+RUN mkdir -p /app/setup
+
+# Check if server/ exists; if so, move it into setup/
+RUN if [ -d "/app/server" ]; then \
+        mv /app/server /app/setup/; \
+    else \
+        echo "server/ directory not found in the root"; \
+    fi
+
+# Install additional packages
 RUN apk add chromium git nodejs npm yarn
 
 # entry point
