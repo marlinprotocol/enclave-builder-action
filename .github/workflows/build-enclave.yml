@@ -36,57 +36,40 @@ jobs:
           mv setup.sh setup/ || echo "setup.sh already in setup/"
           mv supervisord.conf setup/ || echo "supervisord.conf already in setup/"
 
-          # Check and add outer Dockerfile and entrypoint.sh if not present
           if [ ! -f Dockerfile ]; then
             echo "Creating outer Dockerfile"
             cat <<EOF > Dockerfile
-          # base image
-          FROM marlinorg/nitro-cli
-
-          # working directory
-          WORKDIR /app/setup
-
-          # add files
-          COPY entrypoint.sh ./
-          RUN chmod +x entrypoint.sh
-
-          # entry point
-          ENTRYPOINT [ "/app/setup/entrypoint.sh" ]
-          EOF
-                  fi
-
-                  # Create entrypoint.sh if not present
-                  if [ ! -f entrypoint.sh ]; then
-                  echo "Creating entrypoint.sh"
-                  cat <<EOF > entrypoint.sh
-          #!/bin/sh
-
-          dockerd &
-          sleep 10
-
-          # Determine architecture
-          ARCH=\$(uname -m)
-          if [ "\$ARCH" = "aarch64" ]; then
-          PLATFORM=linux/arm64
-          else
-          PLATFORM=linux/amd64
+            FROM marlinorg/nitro-cli
+            WORKDIR /app/setup
+            COPY entrypoint.sh ./
+            RUN chmod +x entrypoint.sh
+            ENTRYPOINT [ "/app/setup/entrypoint.sh" ]
+            EOF
           fi
 
-          docker buildx create --name multiplatformEnclave --driver docker-container --bootstrap
-          docker buildx use multiplatformEnclave
+          if [ ! -f entrypoint.sh ]; then
+            echo "Creating entrypoint.sh"
+            cat <<EOF > entrypoint.sh
+            #!/bin/sh
+            dockerd &
+            sleep 10
+            ARCH=\$(uname -m)
+            if [ "\$ARCH" = "aarch64" ]; then
+                PLATFORM=linux/arm64
+            else
+                PLATFORM=linux/amd64
+            fi
 
-          cd /app/mount/setup
-          docker buildx build --platform \$PLATFORM -t enclave:latest --load .
-
-          mkdir -p /app/mount/enclave
-          mkdir -p /var/log/nitro_enclaves
-          touch /var/log/nitro_enclaves/nitro_enclaves.log
-
-          nitro-cli build-enclave --docker-uri enclave:latest --output-file /app/mount/enclave/enclave.eif
-          EOF
-
-          chmod +x entrypoint.sh
-                  fi
+            docker buildx create --name multiplatformEnclave --driver docker-container --bootstrap
+            docker buildx use multiplatformEnclave
+            cd /app/mount/setup
+            docker buildx build --platform \$PLATFORM -t enclave:latest --load .
+            mkdir -p /app/mount/enclave
+            nitro-cli build-enclave --docker-uri enclave:latest --output-file /app/mount/enclave/enclave.eif
+            cp /app/mount/enclave/enclave.eif /app/setup/enclave.eif
+            EOF
+            chmod +x entrypoint.sh
+          fi
 
       - name: Commit and push entrypoint.sh if created
         run: |
