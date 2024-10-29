@@ -40,53 +40,53 @@ jobs:
           if [ ! -f Dockerfile ]; then
             echo "Creating outer Dockerfile"
             cat <<EOF > Dockerfile
-          # base image
-          FROM marlinorg/nitro-cli
+            # base image
+            FROM marlinorg/nitro-cli
 
-          # working directory
-          WORKDIR /app/setup
+            # working directory
+            WORKDIR /app/setup
 
-          # add files
-          COPY entrypoint.sh ./
-          RUN chmod +x entrypoint.sh
+            # add files
+            COPY entrypoint.sh ./
+            RUN chmod +x entrypoint.sh
 
-          # entry point
-          ENTRYPOINT [ "/app/setup/entrypoint.sh" ]
-          EOF
-                  fi
-
-                  # Create entrypoint.sh if not present
-                  if [ ! -f entrypoint.sh ]; then
-                  echo "Creating entrypoint.sh"
-                  cat <<EOF > entrypoint.sh
-          #!/bin/sh
-
-          dockerd &
-          sleep 10
-
-          # Determine architecture
-          ARCH=\$(uname -m)
-          if [ "\$ARCH" = "aarch64" ]; then
-          PLATFORM=linux/arm64
-          else
-          PLATFORM=linux/amd64
+            # entry point
+            ENTRYPOINT [ "/app/setup/entrypoint.sh" ]
+            EOF
           fi
 
-          docker buildx create --name multiplatformEnclave --driver docker-container --bootstrap
-          docker buildx use multiplatformEnclave
+          # Create entrypoint.sh if not present
+          if [ ! -f entrypoint.sh ]; then
+            echo "Creating entrypoint.sh"
+            cat <<EOF > entrypoint.sh
+            #!/bin/sh
 
-          cd /app/mount/setup
-          docker buildx build --platform \$PLATFORM -t enclave:latest --load .
+            dockerd &
+            sleep 10
 
-          mkdir -p /app/mount/enclave
-          mkdir -p /var/log/nitro_enclaves
-          touch /var/log/nitro_enclaves/nitro_enclaves.log
+            # Determine architecture
+            ARCH=\$(uname -m)
+            if [ "\$ARCH" = "aarch64" ]; then
+                PLATFORM=linux/arm64
+            else
+                PLATFORM=linux/amd64
+            fi
 
-          nitro-cli build-enclave --docker-uri enclave:latest --output-file /app/mount/enclave/enclave.eif
-          EOF
+            docker buildx create --name multiplatformEnclave --driver docker-container --bootstrap
+            docker buildx use multiplatformEnclave
 
-          chmod +x entrypoint.sh
-                  fi
+            cd /app/mount/setup
+            docker buildx build --platform \$PLATFORM -t enclave:latest --load .
+
+            mkdir -p /app/mount/enclave
+            mkdir -p /var/log/nitro_enclaves
+            touch /var/log/nitro_enclaves/nitro_enclaves.log
+
+            nitro-cli build-enclave --docker-uri enclave:latest --output-file /app/mount/enclave/enclave.eif
+            EOF
+
+            chmod +x entrypoint.sh
+          fi
 
       - name: Commit and push entrypoint.sh if created
         run: |
@@ -103,16 +103,26 @@ jobs:
           docker build -t enclave .
           docker run --privileged -v $(pwd):/app/mount enclave
 
-      - name: Locate enclave.eif file
+      - name: Locate the enclave.eif file
+        id: locate_eif
         run: |
           echo "Searching for enclave.eif file..."
-          find / -name "enclave.eif" 2>/dev/null
+          enclave_file=$(find /app/mount/enclave/enclave.eif 2>/dev/null || true)
+          if [ -z "$enclave_file" ]; then
+            echo "File enclave.eif not found!"
+            exit 1
+          else
+            echo "File found at: $enclave_file"
+            echo "file_path=$enclave_file" >> $GITHUB_ENV
+          fi
 
       - name: Commit and push enclave.eif
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add /app/mount/enclave/enclave.eif
+          mkdir -p enclave
+          cp "$GITHUB_ENV" enclave/enclave.eif
+          git add enclave/enclave.eif
           git commit -m "Add generated enclave.eif file"
           git push
         env:
