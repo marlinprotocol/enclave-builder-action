@@ -104,15 +104,22 @@ jobs:
           docker run --privileged -v $(pwd):/app/mount enclave
 
       - name: Verify enclave.eif file
+        id: verify_eif
         run: |
           echo "Searching for enclave.eif file..."
-          find / -name "enclave.eif" 2>/dev/null
+          EIF_PATH=$(find / -name "enclave.eif" 2>/dev/null | head -n 1)
+          if [ -z "$EIF_PATH" ]; then
+            echo "Error: enclave.eif file not found!"
+            exit 1
+          else
+            echo "EIF_PATH=$EIF_PATH" >> $GITHUB_ENV
+          fi
 
       - name: Commit and push enclave.eif
         run: |
           cd $GITHUB_WORKSPACE  # Move to the root directory of the repository
           mkdir -p enclave
-          cp /home/runner/work/enclave-builder-action/enclave-builder-action/enclave/enclave.eif enclave/enclave.eif  # Copy the file to the repo
+          cp "$EIF_PATH" enclave/enclave.eif  # Copy the file to the repo
           git add enclave/enclave.eif
           git commit -m "Add generated enclave.eif file"
           git push
