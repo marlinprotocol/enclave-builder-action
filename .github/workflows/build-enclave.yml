@@ -103,26 +103,21 @@ jobs:
           docker build -t enclave .
           docker run --privileged -v $(pwd):/app/mount enclave
 
-      - name: Locate the enclave.eif file
-        id: locate_eif
+      - name: Verify enclave.eif file
         run: |
           echo "Searching for enclave.eif file..."
-          enclave_file=$(find /app/mount/enclave/enclave.eif 2>/dev/null || true)
-          if [ -z "$enclave_file" ]; then
+          if [ -f ./setup/enclave.eif ]; then
+            echo "File enclave.eif found in ./setup directory."
+          else
             echo "File enclave.eif not found!"
             exit 1
-          else
-            echo "File found at: $enclave_file"
-            echo "file_path=$enclave_file" >> $GITHUB_ENV
           fi
 
       - name: Commit and push enclave.eif
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          mkdir -p enclave
-          cp "$GITHUB_ENV" enclave/enclave.eif
-          git add enclave/enclave.eif
+          git add ./setup/enclave.eif
           git commit -m "Add generated enclave.eif file"
           git push
         env:
