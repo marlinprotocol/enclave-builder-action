@@ -103,6 +103,11 @@ jobs:
           docker build -t enclave .
           docker run --privileged -v $(pwd):/app/mount enclave
 
+      - name: Locate enclave.eif file
+        run: |
+          echo "Searching for enclave.eif file..."
+          find / -name "enclave.eif" 2>/dev/null
+
       - name: Commit and push enclave.eif
         run: |
           git config --global user.name "github-actions[bot]"
