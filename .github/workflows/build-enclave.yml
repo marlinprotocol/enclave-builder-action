@@ -111,15 +111,21 @@ jobs:
           if [ -z "$EIF_PATH" ]; then
             echo "Error: enclave.eif file not found!"
             exit 1
-          else
-            echo "EIF_PATH=$EIF_PATH" >> $GITHUB_ENV
-          fi
+           fi
+          echo "File found at $EIF_PATH"
+          echo "EIF_PATH=$EIF_PATH" >> $GITHUB_ENV
+
+      - name: Initialize Git LFS
+        run: |
+          git lfs install
+          git lfs track "enclave/enclave.eif"
+          git add .gitattributes
+          git commit -m "Track enclave.eif with Git LFS" || echo "No changes to commit"
 
       - name: Commit and push enclave.eif
         run: |
           cd $GITHUB_WORKSPACE  # Move to the root directory of the repository
           mkdir -p enclave
-
           # Only copy if the file does not already exist in the target path
           if [ ! -f enclave/enclave.eif ]; then
             cp "$EIF_PATH" enclave/enclave.eif
