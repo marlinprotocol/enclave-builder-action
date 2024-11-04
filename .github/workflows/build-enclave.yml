@@ -102,7 +102,7 @@ jobs:
         run: |
           if [ -d "webapp" ]; then
             echo "webapp folder found. Starting frontend build..."
-            cd frontend
+            cd webapp
             if [ "${{ inputs.package_manager || 'npm' }}" == "yarn" ]; then
               yarn install
               yarn build
@@ -111,7 +111,7 @@ jobs:
               npm run build
             fi
           else
-            echo "No frontend folder found, skipping frontend build."
+            echo "No webapp folder found, skipping frontend build."
           fi
 
       - name: Commit and push frontend build
