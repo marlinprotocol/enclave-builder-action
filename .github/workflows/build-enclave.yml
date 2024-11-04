@@ -116,10 +116,10 @@ jobs:
 
       - name: Commit and push frontend build
         run: |
-          if [ -d "frontend/build" ]; then
+          if [ -d "webapp/build" ]; then
             git config --global user.name "github-actions[bot]"
             git config --global user.email "github-actions[bot]@users.noreply.github.com"
-            git add frontend/build
+            git add webapp/build
             git commit -m "Add frontend build files" || echo "No changes to commit"
             git push
           else
