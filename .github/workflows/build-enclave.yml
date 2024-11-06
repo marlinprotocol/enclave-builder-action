@@ -129,7 +129,7 @@ jobs:
       - name: Print Download URL
         if: success()
         run: |
-          REPO_URL="${{ github.repository_url }}"
+          REPO_URL="https://github.com/${{ github.repository }}"
           BRANCH="master"  # or specify the branch where enclave.eif is pushed
           FILE_PATH="enclave/enclave.eif"
           DOWNLOAD_URL="$REPO_URL/blob/$BRANCH/$FILE_PATH"
