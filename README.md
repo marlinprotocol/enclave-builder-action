@@ -101,3 +101,10 @@ The PCR values of your Enclaves are available in the action section after the Bu
 2. Ensure the **Build enclave** step has completed successfully.
 3. Scroll down to the **Build enclave** step and expand it.
 4. You can now view the PCR0, PCR1, and PCR2 values of your Enclaves.
+
+## Retrieving the Enclave EIF File and URL
+
+After building the enclave, the GitHub Actions workflow will provide a URL where you can download the generated EIF file. Follow these steps to access it:
+
+1. **Trigger the Build Process**: Manually initiate the build process using the GitHub Actions workflow (`workflow_dispatch`) on your repository.
+2. **Get the URL**: Once the build completes, check the "Build Enclave" job logs in GitHub Actions. You will find a complete URL that points to the location of the `enclave.eif` file. Copy this URL to download the file directly from the repository.
