@@ -125,3 +125,12 @@ jobs:
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Print Download URL
+        if: success()
+        run: |
+          REPO_URL="${{ github.repository_url }}"
+          BRANCH="master"  # or specify the branch where enclave.eif is pushed
+          FILE_PATH="enclave/enclave.eif"
+          DOWNLOAD_URL="$REPO_URL/blob/$BRANCH/$FILE_PATH"
+          echo "The enclave.eif file can be downloaded from: $DOWNLOAD_URL"
