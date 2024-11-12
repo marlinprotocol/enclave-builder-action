@@ -113,15 +113,17 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE  # Move to the root directory of the repository
           mkdir -p enclave
-          # Only copy if the file does not already exist in the target path
-          if [ ! -f enclave/enclave.eif ]; then
-            cp "$EIF_PATH" enclave/enclave.eif
-          else
-            echo "enclave.eif already exists in the destination path, skipping copy."
-          fi
 
+          # Remove existing enclave.eif if present, then copy the new file
+          if [ -f enclave/enclave.eif ]; then
+            echo "Replacing existing enclave.eif with new generated file."
+            rm enclave/enclave.eif
+          fi
+          cp "$EIF_PATH" enclave/enclave.eif
+
+          # Add, commit, and push changes
           git add enclave/enclave.eif
-          git commit -m "Add generated enclave.eif file" || echo "No changes to commit"
+          git commit -m "Update generated enclave.eif file" || echo "No changes to commit"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
