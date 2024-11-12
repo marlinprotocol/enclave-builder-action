@@ -90,3 +90,21 @@ The workflow (`.github/workflows/build-enclave.yml`) performs the following step
 - The `enclave.eif` file may be large, exceeding GitHub's file size limits. Consider using Git Large File Storage (LFS) if you encounter issues pushing large files.
 - You may want to modify the GitHub Actions workflow as per your project's specific requirements.
 - Review the logs in the **Actions** tab to debug any issues during the workflow execution.
+
+## Viewing PCR Values of Your Enclaves
+
+The PCR values of your Enclaves are available in the action section after the Build enclave step has completed successfully.
+
+### Steps to View PCR Values
+
+1. Navigate to the **Actions** tab in your repository.
+2. Ensure the **Build enclave** step has completed successfully.
+3. Scroll down to the **Build enclave** step and expand it.
+4. You can now view the PCR0, PCR1, and PCR2 values of your Enclaves.
+
+## Retrieving the Enclave EIF File and URL
+
+After building the enclave, the GitHub Actions workflow will provide a URL where you can download the generated EIF file. Follow these steps to access it:
+
+1. **Trigger the Build Process**: Manually initiate the build process using the GitHub Actions workflow (`workflow_dispatch`) on your repository.
+2. **Get the URL**: Once the build completes, check the "Build Enclave" job logs in GitHub Actions. You will find a complete URL that points to the location of the `enclave.eif` file. Copy this URL to download the file directly from the repository.
