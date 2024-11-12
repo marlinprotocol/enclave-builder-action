@@ -1,12 +1,12 @@
-name: Build Enclave
+name: Frontend Enclave
 
 on:
   workflow_dispatch:
     inputs:
-      test_environment:
-        description: 'Select environment for testing'
+      package_manager:
+        description: 'Select package manager (npm or yarn)'
         required: true
-        default: 'staging'
+        default: 'npm'
 
 jobs:
   build-enclave:
@@ -84,6 +84,20 @@ jobs:
 
           chmod +x entrypoint.sh
                   fi
+
+      - name: Build Frontend Code
+        run: |
+          if [ -d "frontend" ]; then
+            echo "Frontend folder found. Starting frontend build..."
+            cd frontend
+             if [ "${{ github.event.inputs.package_manager }}" == "yarn" ]; then
+              yarn install && yarn build
+            else
+              npm install && npm run build
+            fi
+          else
+            echo "No frontend folder found, skipping frontend build."
+          fi
 
       - name: Build and Run Enclave
         run: |
