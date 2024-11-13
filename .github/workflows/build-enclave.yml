@@ -122,7 +122,7 @@ jobs:
 
           # Replace or add the new enclave.eif file
           echo "Replacing existing enclave.eif if it exists, or adding new file."
-          rm -f enclave/enclave.eif  # Remove any existing file
+          sudo rm -f enclave/enclave.eif  # Remove any existing file
           cp "$EIF_PATH" enclave/enclave.eif
 
           # Configure Git for GitHub Actions bot
