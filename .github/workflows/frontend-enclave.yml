@@ -118,6 +118,8 @@ jobs:
 
       - name: Initialize Git LFS
         run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git lfs install
           git lfs track "enclave/enclave.eif"
           git add .gitattributes
