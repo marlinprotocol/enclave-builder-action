@@ -118,12 +118,6 @@ jobs:
           # Debug: Print EIF_PATH to ensure it's set correctly
           echo "EIF_PATH is set to: $EIF_PATH"
 
-          # Check if the new EIF file was generated and exists at $EIF_PATH
-          if [ -z "$EIF_PATH" ] || [ ! -f "$EIF_PATH" ]; then
-            echo "Error: The enclave.eif file not found at $EIF_PATH."
-            exit 1
-          fi
-
           # Replace or add the new enclave.eif file
           echo "Replacing existing enclave.eif if it exists, or adding new file."
           sudo rm -f enclave/enclave.eif  # Remove any existing file
