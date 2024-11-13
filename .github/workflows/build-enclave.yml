@@ -114,22 +114,15 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE  # Move to the root directory of the repository
           mkdir -p enclave
+          # Only copy if the file does not already exist in the target path
+          if [ ! -f enclave/enclave.eif ]; then
+            cp "$EIF_PATH" enclave/enclave.eif
+          else
+            echo "enclave.eif already exists in the destination path, skipping copy."
+          fi
 
-          # Debug: Print EIF_PATH to ensure it's set correctly
-          echo "EIF_PATH is set to: $EIF_PATH"
-
-          # Replace or add the new enclave.eif file
-          echo "Replacing existing enclave.eif if it exists, or adding new file."
-          sudo rm -f enclave/enclave.eif  # Remove any existing file
-          cp "$EIF_PATH" enclave/enclave.eif
-
-          # Configure Git for GitHub Actions bot
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          # Add, commit, and push changes
           git add enclave/enclave.eif
-          git commit -m "Update generated enclave.eif file" || echo "No changes to commit"
+          git commit -m "Add generated enclave.eif file" || echo "No changes to commit"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
