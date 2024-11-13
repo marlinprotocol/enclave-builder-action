@@ -117,7 +117,7 @@ jobs:
           # Remove existing enclave.eif if present, then copy the new file
           if [ -f enclave/enclave.eif ]; then
             echo "Replacing existing enclave.eif with new generated file."
-            rm enclave/enclave.eif
+            sudo rm enclave/enclave.eif
           fi
           cp "$EIF_PATH" enclave/enclave.eif
 
