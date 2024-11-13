@@ -121,6 +121,10 @@ jobs:
           fi
           cp "$EIF_PATH" enclave/enclave.eif
 
+          # Configure Git for GitHub Actions bot
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
           # Add, commit, and push changes
           git add enclave/enclave.eif
           git commit -m "Update generated enclave.eif file" || echo "No changes to commit"
