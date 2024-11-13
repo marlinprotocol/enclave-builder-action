@@ -119,7 +119,7 @@ jobs:
 
           # Check if the new EIF file was generated and exists at $EIF_PATH
           if [ -z "$EIF_PATH" ] || [ ! -f "$EIF_PATH" ]; then
-            echo "Error: The enclave.eif file was not found at $EIF_PATH."
+            echo "Error: The enclave.eif file not found at $EIF_PATH."
             exit 1
           fi
 
