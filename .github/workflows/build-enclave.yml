@@ -95,7 +95,7 @@ jobs:
         run: |
           echo "Searching for enclave.eif file..."
           EIF_PATH=$(find / -name "enclave.eif" 2>/dev/null | head -n 1)
-          if [ -z "$EIF_PATH" ]; then
+          if [ -z "$EIF_PATH" ] || [ ! -f "$EIF_PATH" ]; then
             echo "Error: enclave.eif file not found!"
             exit 1
            fi
