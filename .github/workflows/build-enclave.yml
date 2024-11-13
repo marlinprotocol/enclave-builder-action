@@ -114,11 +114,15 @@ jobs:
           cd $GITHUB_WORKSPACE  # Move to the root directory of the repository
           mkdir -p enclave
 
-          # Remove existing enclave.eif if present, then copy the new file
-          if [ -f enclave/enclave.eif ]; then
-            echo "Replacing existing enclave.eif with new generated file."
-            sudo rm enclave/enclave.eif
+          # Check if the new EIF file was generated and exists at $EIF_PATH
+          if [ -z "$EIF_PATH" ] || [ ! -f "$EIF_PATH" ]; then
+            echo "Error: The enclave.eif file was not found at $EIF_PATH."
+            exit 1
           fi
+
+          # Replace or add the new enclave.eif file
+          echo "Replacing existing enclave.eif if it exists, or adding new file."
+          rm -f enclave/enclave.eif  # Remove any existing file
           cp "$EIF_PATH" enclave/enclave.eif
 
           # Configure Git for GitHub Actions bot
