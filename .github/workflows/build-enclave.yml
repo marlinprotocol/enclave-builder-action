@@ -114,6 +114,9 @@ jobs:
           cd $GITHUB_WORKSPACE  # Move to the root directory of the repository
           mkdir -p enclave
 
+          # Debug: Print EIF_PATH to ensure it's set correctly
+          echo "EIF_PATH is set to: $EIF_PATH"
+
           # Check if the new EIF file was generated and exists at $EIF_PATH
           if [ -z "$EIF_PATH" ] || [ ! -f "$EIF_PATH" ]; then
             echo "Error: The enclave.eif file was not found at $EIF_PATH."
