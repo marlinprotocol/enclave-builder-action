@@ -117,11 +117,8 @@ jobs:
           cd $GITHUB_WORKSPACE  # Move to the root directory of the repository
           mkdir -p enclave
           # Only copy if the file does not already exist in the target path
-          if [ ! -f enclave/enclave.eif ]; then
+
             cp "$EIF_PATH" enclave/enclave.eif
-          else
-            echo "enclave.eif already exists in the destination path, skipping copy."
-          fi
 
           git add enclave/enclave.eif
           git commit -m "Add generated enclave.eif file" || echo "No changes to commit"
