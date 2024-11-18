@@ -123,6 +123,11 @@ jobs:
             exit 1
           fi
 
+          echo "Showing details of the new enclave.eif file:"
+          ls -lh "$EIF_PATH"   # Shows file size and metadata
+          file "$EIF_PATH"     # Identifies the type of file
+          echo "-------------------"
+
           # Replace the existing enclave.eif file only if the source and destination are different
           if [ "$EIF_PATH" != "$GITHUB_WORKSPACE/enclave/enclave.eif" ]; then
             echo "Replacing existing enclave.eif with the new generated file."
