@@ -103,51 +103,21 @@ jobs:
           echo "File found at $EIF_PATH"
           echo "EIF_PATH=$EIF_PATH" >> $GITHUB_ENV
 
-      - name: Initialize Git LFS
+      - name: Create GitHub Release and upload enclave.eif
+        id: create_release
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git lfs install
-          git lfs track "enclave/enclave.eif"
-          git add .gitattributes
-          git commit -m "Track enclave.eif with Git LFS" || echo "No changes to commit"
+          TAG_NAME="v1.0.0" # You can adjust this dynamically based on input or versioning logic
+          RELEASE_NAME="Enclave Build $TAG_NAME"
+          BODY="This release contains the generated enclave.eif file."
 
-      - name: Commit and push enclave.eif
-        run: |
-          cd $GITHUB_WORKSPACE  # Move to the root directory of the repository
-          mkdir -p enclave
-
-          # Ensure the new EIF file exists before proceeding
-          if [ -z "$EIF_PATH" ] || [ ! -f "$EIF_PATH" ]; then
-            echo "Error: The enclave.eif file not found at $EIF_PATH."
-            exit 1
-          fi
-
-          echo "Showing details of the new enclave.eif file:"
-          ls -lh "$EIF_PATH"   # Shows file size and metadata
-          file "$EIF_PATH"     # Identifies the type of file
-          echo "-------------------"
-
-          # Replace the existing enclave.eif file only if the source and destination are different
-          if [ "$EIF_PATH" != "$GITHUB_WORKSPACE/enclave/enclave.eif" ]; then
-            echo "Replacing existing enclave.eif with the new generated file."
-            cp "$EIF_PATH" enclave/enclave.eif
-          else
-            echo "Source and destination are the same. Skipping copy."
-          fi
-
-          # Add, commit, and push changes
-          git add enclave/enclave.eif
-          git commit -m "Update generated enclave.eif file" || echo "No changes to commit"
-          git push
+          # Create a GitHub release
+          RELEASE_URL=$(gh release create $TAG_NAME $EIF_PATH --title "$RELEASE_NAME" --notes "$BODY")
+          echo "Release URL: $RELEASE_URL"
+          echo "RELEASE_URL=$RELEASE_URL" >> $GITHUB_ENV
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Print Download URL
-        if: success()
         run: |
-          REPO_URL="https://github.com/${{ github.repository }}"
-          BRANCH="${{ github.ref_name }}"
-          FILE_PATH="enclave/enclave.eif"
-          DOWNLOAD_URL="$REPO_URL/raw/$BRANCH/$FILE_PATH"
-          echo "The enclave.eif file can be downloaded from: $DOWNLOAD_URL"
+          echo "The enclave.eif file can be downloaded from the release:"
+          echo "${{ steps.create_release.outputs.RELEASE_URL }}"
