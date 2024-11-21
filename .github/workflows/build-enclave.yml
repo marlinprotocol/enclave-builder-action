@@ -110,9 +110,12 @@ jobs:
           RELEASE_NAME="Enclave Build $TAG_NAME"
           BODY="This release contains the generated enclave.eif file."
 
-          # Create a GitHub release
-          RELEASE_URL=$(gh release create $TAG_NAME $EIF_PATH --title "$RELEASE_NAME" --notes "$BODY")
-          echo "Release URL: $RELEASE_URL"
+          # Create a GitHub release and upload the enclave.eif file
+          gh release create $TAG_NAME $EIF_PATH --title "$RELEASE_NAME" --notes "$BODY"
+
+          # Construct the release URL
+          REPO_URL="https://github.com/${{ github.repository }}"
+          RELEASE_URL="$REPO_URL/releases/tag/$TAG_NAME"
           echo "RELEASE_URL=$RELEASE_URL" >> $GITHUB_ENV
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -120,4 +123,4 @@ jobs:
       - name: Print Download URL
         run: |
           echo "The enclave.eif file can be downloaded from the release:"
-          echo "${{ steps.create_release.outputs.RELEASE_URL }}"
+          echo "${{ env.RELEASE_URL }}"
