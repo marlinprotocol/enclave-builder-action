@@ -36,17 +36,11 @@ Add the following secrets to your repository’s settings to securely provide cr
 
 2. **Create Github Release**: Create a Github release with updated tags and version information to construct a release url
 
-   # Create a Github release with the generated enclave.eif file
-
-   # The release name is based on the user-provided version input
-
-   # The release body is a brief description of the release contents
-
-   # The release URL is constructed from the repository URL and the release tag
-
-   # The DOWNLOAD_URL environment variable is set for later use
-
-   # in the action workflow
+   - Create a Github release with the generated enclave.eif file
+   - The release name is based on the user-provided version input
+   - The release body is a brief description of the release contents
+   - The release URL is constructed from the repository URL and the release tag
+   - The DOWNLOAD_URL environment variable is set for later use in the action workflow
 
 3: **Configure Secrets**
 
