@@ -119,7 +119,7 @@ jobs:
       - name: Create GitHub Release and upload enclave.eif
         id: create_release
         run: |
-          TAG_NAME="v1.0.0" # You can adjust this dynamically based on input or versioning logic
+          TAG_NAME="${{ github.event.inputs.version }}"
           RELEASE_NAME="Enclave Build $TAG_NAME"
           BODY="This release contains the generated enclave.eif file."
 
