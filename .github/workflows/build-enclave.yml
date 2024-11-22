@@ -3,16 +3,29 @@ name: Build Enclave
 on:
   workflow_dispatch:
     inputs:
-      test_environment:
-        description: 'Select environment for testing'
-        required: true
-        default: 'staging'
+      version:
+        description: 'Enter the release version (e.g., v1.0.1)'
+        required: false
+        default: 'v1.0-default' # Default dynamic version
 
 jobs:
   build-enclave:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Set dynamic version if not provided
+        id: set_version
+        run: |
+          if [ "${{ github.event.inputs.version }}" == "v1.0-default" ]; then
+            TIMESTAMP=$(date +"%Y%m%d-%H%M")
+            VERSION="v1.0-${TIMESTAMP}"
+          else
+            VERSION="${{ github.event.inputs.version }}"
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Print version
+        run: echo "The version is $VERSION"
       - name: Checkout repository
         uses: actions/checkout@v3
 
