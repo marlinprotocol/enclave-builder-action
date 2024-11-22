@@ -5,27 +5,13 @@ on:
     inputs:
       version:
         description: 'Enter the release version (e.g., v1.0.1)'
-        required: false
-        default: 'v1.0-default' # Default dynamic version
+        required: true
 
 jobs:
   build-enclave:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Set dynamic version if not provided
-        id: set_version
-        run: |
-          if [ "${{ github.event.inputs.version }}" == "v1.0-default" ]; then
-            TIMESTAMP=$(date +"%Y%m%d-%H%M")
-            VERSION="v1.0-${TIMESTAMP}"
-          else
-            VERSION="${{ github.event.inputs.version }}"
-          fi
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-
-      - name: Print version
-        run: echo "The version is $VERSION"
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -136,4 +122,4 @@ jobs:
       - name: Print Download URL
         run: |
           echo "The enclave.eif file can be downloaded from the release:"
-          echo "${{ env.RELEASE_URL }}"
+          echo "${{ env.RELEASE_URL }}/enclave.eif"
