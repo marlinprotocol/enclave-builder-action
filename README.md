@@ -7,7 +7,6 @@ This GitHub Action automates the process of building and deploying enclaves usin
 - **GitHub Actions**: Automates the build and deployment processes
 - **AWS Nitro Enclaves**: Provides isolated compute environments for high-security workloads
 - **Docker**: Manages containerization for flexible, multi-platform builds
-- **Git Large File Storage (LFS)**: Handles large file versioning, crucial for managing large `.eif` binaries
 
 ---
 
@@ -15,7 +14,6 @@ This GitHub Action automates the process of building and deploying enclaves usin
 
 1. **Docker Hub Account**: This action requires access to Docker Hub for image creation. Ensure you have a Docker Hub account with credentials stored in your GitHub Secrets.
 2. **AWS Nitro Enclaves Enabled Environment**: AWS Nitro Enclaves must be enabled to run and test enclaves.
-3. **Git LFS**: This repository uses Git LFS to manage large `.eif` files, which exceed GitHub’s regular file size limits.
 
 ### GitHub Secrets
 
@@ -36,14 +34,19 @@ Add the following secrets to your repository’s settings to securely provide cr
 
    ```
 
-2. **Set Up Git LFS**: Ensure Git LFS is installed on your local environment and track `.eif` files.
+2. **Create Github Release**: Create a Github release with updated tags and version information to construct a release url
 
-   ```bash
-   git lfs install
-   git lfs track "*.eif"
-   git add .gitattributes
-   git commit -m "Track .eif files using Git LFS"
-   ```
+   # Create a Github release with the generated enclave.eif file
+
+   # The release name is based on the user-provided version input
+
+   # The release body is a brief description of the release contents
+
+   # The release URL is constructed from the repository URL and the release tag
+
+   # The DOWNLOAD_URL environment variable is set for later use
+
+   # in the action workflow
 
 3: **Configure Secrets**
 
@@ -82,7 +85,7 @@ The workflow (`.github/workflows/build-enclave.yml`) performs the following step
 5. **Docker Image Build:** Builds a Docker image that supports the multi-platform build environment for the enclave.
 6. **Build Enclave:** Uses `nitro-cli` to build the enclave image and save it as `enclave.eif`.
 7. **File Location Check:** Searches for the `enclave.eif` file and ensures it's accessible.
-8. **Git LFS Commit and Push:** Uses Git LFS to commit and push the large `.eif` file to the repository.
+8. **Git Release Commit and Push:** Uses Git Release to version and commit and push the large `.eif` file to the repository.
 
 ### Notes
 
