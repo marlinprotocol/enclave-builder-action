@@ -115,8 +115,8 @@ jobs:
           # Construct the release URL
           REPO_URL="https://github.com/${{ github.repository }}"
           RELEASE_URL="$REPO_URL/releases/tag/$TAG_NAME"
-          echo "YOu can check the enclave.eif file here: $RELEASE_URL"
-          DOWNLOAD_URL="$REPO_URL/download/tag/$TAG_NAME"
+          echo "You can check the enclave.eif file here: $RELEASE_URL"
+          DOWNLOAD_URL="$REPO_URL/releases/download/$TAG_NAME"
           echo "DOWNLOAD_URL=$DOWNLOAD_URL" >> $GITHUB_ENV
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
